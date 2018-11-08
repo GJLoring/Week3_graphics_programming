@@ -171,10 +171,34 @@ var Matrix3 = function() {
 	this.inverse = function() {
 		// todo
 		// modify 'this' matrix so that it becomes its inverse
-		var invDet = 1/this.determinant;  //Find this BEFORE anything else
+		var invDet = 1/this.determinant();  //Find this BEFORE anything else
 
 		//Create matrix of minors
-
+		var tmp = new Float32Array(9);
+		for(x=0; x < tmp.length;x++){
+			tmp[x]=0;
+		}
+		for (var col = 0; col < 3; col++) {
+			for (var row = 0; row < 3; row++) {
+				var i =  col*3+row;
+				var minors = new Float32Array(4);
+				var minorCount = 0;
+				for( var u = 0; u < 3; u++){
+					if(u!=col){
+						for( var v = 0; v < 3; v++){
+							if(v!=row){
+								minors[minorCount]= this.elements[u*3+v];
+								minorCount= minorCount+1;
+							}
+						}
+					}
+				}
+				tmp[i] = minors[0]*minors[3] - minors[1]*minors[2];
+			}
+		}
+		for(x=0; x < tmp.length;x++){
+			this.elements[x]= tmp[x];
+		}
 
 		//Compute co factors
 		for(x=0; x < this.elements.length;x+=2){
@@ -186,7 +210,7 @@ var Matrix3 = function() {
 
 		//Multiply by 1/Determinant
 		for(x=0; x < this.elements.length;x++){
-			this.elements[x] = this.elements[x]*invDet;
+			this.elements[x] = this.elements[x]*invDet * -1;
 		}
 		return this;
 	};
